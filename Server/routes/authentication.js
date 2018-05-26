@@ -5,6 +5,8 @@ module.exports = (router) => {
      Register Route
   ============== */
   router.post('/register', (req, res) => {
+   
+    console.log(req.body);
     // Check if email was provided
     if (!req.body.email) {
       res.json({ success: false, message: 'You must provide an e-mail' }); // Return error
@@ -63,6 +65,72 @@ module.exports = (router) => {
       }
     }
   });
+
+
+  router.get('/checkEmail/:email', (req, res) => {
+    console.log(req.params.email)
+    if(!req.params.email){
+      res.json({
+        success : false ,
+        message:"email not provided" 
+
+
+      })
+    }else{
+User.findOne({email : req.params.email},(err,user) =>{
+
+  if(err){
+    res.json({
+      success : false,
+      message : err
+    })}
+    else{
+      if(user){
+        res.json({
+          success:false,
+          message:"email already present"
+        })
+      }
+     else{
+        res.json({
+          success:true,
+          message:"email available"
+        })
+      }
+    }
+
+  
+})
+
+    }
+
+  })
+
+
+    /* ===============================================================
+     Route to check if user's username is available for registration
+  =============================================================== */
+  router.get('/checkUsername/:username', (req, res) => {
+    // Check if username was provided in paramaters
+    if (!req.params.username) {
+      res.json({ success: false, message: 'Username was not provided' }); // Return error
+    } else {
+      // Look for username in database
+      User.findOne({ username: req.params.username }, (err, user) => {
+        // Check if connection error was found
+        if (err) {
+          res.json({ success: false, message: err }); // Return connection error
+        } else {
+          // Check if user's username was found
+          if (user) {
+            res.json({ success: false, message: 'Username is already taken' }); // Return as taken username
+          } else {
+            res.json({ success: true, message: 'Username is available' }); // Return as vailable username
+          }
+        }
+      });
+    }
+});
 
   return router; // Return router object to main index.js
 }
